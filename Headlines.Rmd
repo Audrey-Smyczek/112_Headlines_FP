@@ -1,0 +1,33 @@
+---
+title: "headlines"
+author: "Audrey Smyczek"
+date: "4/14/2022"
+output: 
+  html_document:
+    df_print: paged
+    code_download: true
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+library(tidyverse)     # for graphing and data cleaning
+library(lubridate)     # for date manipulation
+library(ggthemes)      # for even more plotting themes
+library(gganimate)     # for adding animation layers to ggplots
+library(viridis)
+library(plotly)        # for the ggplotly() - basic interactivity
+library(gganimate)     # for adding animation layers to ggplots
+theme_set(theme_minimal()) # My favorite ggplot() theme :)
+```
+
+```{r}
+freq_theme_words <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/word_themes_freq.csv")
+```
+
+
+
+
+

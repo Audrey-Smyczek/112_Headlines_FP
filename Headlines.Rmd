@@ -1,5 +1,5 @@
 ---
-title: "headlines"
+title: "Headlines"
 author: "Audrey Smyczek"
 date: "4/14/2022"
 output: 
@@ -17,17 +17,76 @@ library(tidyverse)     # for graphing and data cleaning
 library(lubridate)     # for date manipulation
 library(ggthemes)      # for even more plotting themes
 library(gganimate)     # for adding animation layers to ggplots
+library(RColorBrewer)  # for color palettes
 library(viridis)
 library(plotly)        # for the ggplotly() - basic interactivity
 library(gganimate)     # for adding animation layers to ggplots
+library(transformr)    # for "tweening" (gganimate)
+library(gifski)        # need the library for creating gifs but don't need to load each time
 theme_set(theme_minimal()) # My favorite ggplot() theme :)
 ```
 
 ```{r}
 freq_theme_words <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/word_themes_freq.csv")
+freq_country_words <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/word_country_freq.csv")
+headline_site <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/headlines_site.csv")
+word_theme_rank <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/word_themes_rank.csv")
 ```
 
 
+A cumulative bar graph for the words used to describe women used in headlines. They are divided into 5 main categories with crime and violence having the most words and the highest frequency. The graph is interactive so each word can be highlighted with the individual word and frequency.
+
+```{r}
+pivot_words <- freq_theme_words %>% 
+  pivot_longer(cols = -theme,
+               names_to = "word",
+               values_to = "freq") %>% 
+  na.omit()
+
+word_plot <- pivot_words %>% 
+  filter(theme != "No theme") %>% 
+  ggplot(aes(x = theme, 
+             y = freq, 
+             fill = fct_reorder(word, freq),
+             text = paste("word:", word))) +
+    geom_col(color = "black") +
+    theme(legend.position = "none") +
+    labs(title = "Cumulative Frequency of Words describing Women in Headlines",
+       x = "",
+       y = "Frequency")
+
+ggplotly(word_plot,
+         tooltip = c("y", "text"))
+```
+
+
+```{r}
+pivot_country_word <- freq_country_words %>% 
+  pivot_longer(cols = -country,
+               names_to = "word",
+               values_to = "number") %>% 
+  filter(word != "X") %>% 
+  na.omit()
+
+pivot_country_word
+```
+
+
+```{r}
+
+word_theme_rank %>% 
+  filter(`rank` < 6) %>% 
+  select(!`X`) %>% 
+  ggplot(aes(y = word, x = count)) +
+  geom_col(aes(fill = count))+
+  scale_fill_viridis_c(option = "inferno") +
+  facet_wrap(~theme,
+            scales = "free")+
+  theme(legend.position = "none")+
+  labs(title = "Count of Top 5 words per Theme",
+       y = "",
+       x = "")
+```
 
 
 

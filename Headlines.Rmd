@@ -31,6 +31,8 @@ freq_theme_words <- read.csv("https://raw.githubusercontent.com/the-pudding/data
 freq_country_words <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/word_country_freq.csv")
 headline_site <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/headlines_site.csv")
 word_theme_rank <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/word_themes_rank.csv")
+headline_examples <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/headlines.csv")
+polarity_site <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/polarity_comparison_site_country_time.csv")
 ```
 
 
@@ -73,7 +75,6 @@ pivot_country_word
 
 
 ```{r}
-
 word_theme_rank %>% 
   filter(`rank` < 6) %>% 
   select(!`X`) %>% 
@@ -86,6 +87,45 @@ word_theme_rank %>%
   labs(title = "Count of Top 5 words per Theme",
        y = "",
        x = "")
+```
+
+Polarity from sites, base polarity (black) to women polarity (blue) with the differences as a line segment, they are ordered by polarity of women value, not by differences
+Audrey's Polarity Graph
+```{r, fig.height= 12, fig.width= 4}
+polarity_site %>% 
+  ggplot()+
+  geom_point(aes(x=polarity_base, y = fct_reorder(site, polarity_women)), size = 3)+
+  geom_point(aes(x=polarity_women, y = fct_reorder(site, polarity_women)), color = "blue", size = 3)+
+  geom_segment(aes(x=polarity_base, xend=polarity_women, y=site, yend=site, color = country_of_pub), size = 1)
+```
+
+Ellery's Polarity
+```{r, fig.height= 5}
+polarity_site %>%
+  filter(country_of_pub == "UK")%>%
+  ggplot()+
+  geom_point(aes(x = polarity_base, y = fct_reorder(site, polarity_women)), color = "skyblue", size = 2)+
+  geom_point(aes(x = polarity_women, y = fct_reorder(site, polarity_women)), color = "tomato2", size = 2)+
+  geom_segment(aes(x = polarity_base, xend = polarity_women, y = site, yend = site))
+```
+
+
+
+```{r}
+headline_examples %>%
+  group_by(site)%>%
+  filter(country == "USA")%>%
+  summarize(mean_bias = mean(bias))%>%
+  ggplot(aes(y = fct_reorder(site, mean_bias), x = mean_bias))+
+  geom_point()
+
+```
+
+```{r}
+headline_examples%>%
+  filter(country == "USA")%>%
+  ggplot(aes(y= site, x = bias))+
+  geom_violin()
 ```
 
 

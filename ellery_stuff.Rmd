@@ -23,8 +23,13 @@ library(plotly)        # for the ggplotly() - basic interactivity
 library(gganimate)     # for adding animation layers to ggplots
 library(transformr)    # for "tweening" (gganimate)
 library(gifski)        # need the library for creating gifs but don't need to load each time
+library(gt)
 theme_set(theme_minimal()) # My favorite ggplot() theme :)
 ```
+
+
+
+
 
 ```{r}
 freq_theme_words <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/word_themes_freq.csv")
@@ -37,6 +42,55 @@ headlines <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master
 ```{r}
 polarity <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/polarity_comparison_site_country_time.csv")
 ```
+
+
+```{r}
+polarity_year <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/polarity_comparison_country_time.csv")
+```
+
+
+# headline examples
+
+```{r}
+headlines %>%
+  select(site, headline_no_site, country, bias)%>%
+  group_by(site)%>%
+  filter(bias == max(bias) | bias == min(bias))%>%
+  distinct(bias, .keep_all = TRUE)%>%
+  gt()%>%
+    tab_header(title = "Subset of Headlines with the Largest Bias Scores")
+  
+```
+
+
+```{r}
+# max table
+headlines %>%
+  select(site, headline_no_site, country, bias)%>%
+  arrange(desc(bias))%>%
+  distinct(site, .keep_all = TRUE)%>%
+  slice(1:10) %>%
+  gt()%>%
+    tab_header(title = "Subset of Headlines with the Largest Bias Scores")
+  
+```
+
+```{r}
+# min table
+headlines %>%
+  select(site, headline_no_site, country, bias)%>%
+  arrange(bias)%>%
+  distinct(site, .keep_all = TRUE)%>%
+  slice(1:10) %>%
+  gt()%>%
+    tab_header(title = "Subset of Headlines with the Smallest Bias Scores")
+  
+```
+
+describe how bias is calculated 
+
+# Polarity
+
 
 ```{r, fig.height= 5}
 polarity %>%
@@ -65,6 +119,20 @@ headlines%>%
   geom_violin()
 ```
 
+## polarity over time
+
+```{r}
+polarity_year%>%
+  group_by(year)%>%
+  summarize(mean_women = mean(women_polarity_mean), mean_all = mean(all_polarity_mean))%>%
+  ggplot()+
+    geom_smooth(aes(x=year, y= mean_women), se = FALSE, color ="skyblue")+
+    geom_smooth(aes(x=year, y= mean_all), se = FALSE, color = "black")+ 
+    #geom_point(aes(x = 2019, y = mean_women))+
+    theme_classic()+
+    labs(title = "Headline Polarity", y = "average polarity of headlines", x = NULL)+
+    scale_x_binned()
+```
 
 
 A cumulative bar graph for the words used to describe women used in headlines. They are divided into 5 main categories with crime and violence having the most words and the highest frequency. The graph is interactive so each word can be highlighted with the individual word and frequency.

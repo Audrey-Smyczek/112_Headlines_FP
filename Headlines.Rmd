@@ -23,6 +23,7 @@ library(plotly)        # for the ggplotly() - basic interactivity
 library(gganimate)     # for adding animation layers to ggplots
 library(transformr)    # for "tweening" (gganimate)
 library(gifski)        # need the library for creating gifs but don't need to load each time
+library(gt)
 theme_set(theme_minimal()) # My favorite ggplot() theme :)
 ```
 
@@ -33,7 +34,18 @@ headline_site <- read.csv("https://raw.githubusercontent.com/the-pudding/data/ma
 word_theme_rank <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/word_themes_rank.csv")
 headline_examples <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/headlines.csv")
 polarity_site <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/polarity_comparison_site_country_time.csv")
+polarity_over_time <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/polarity_comparison_country_time.csv")
 ```
+
+POLARITY CALCULATIONS
+We measure polarity by performing sentiment analysis on each headline using the Vader python package, where each headline gets a sentiment score from -1 to 1 (from more negative to more positive). Because we are interested in polarity, we take the absolute value of each headline's score.
+
+BIAS CALCULATIONS
+We measure gender bias by tracking the combined occurrence of gendered language and social stereotypes usually associated with women. We do this in two steps:
+1) We check if a headline contains gendered language (i.e. “spokeswoman,” “chairwoman,” “she,” “her,” “bride,” “daughter,” “daughters,” “female,” “fiancee,” “girl,” “girlfriend” etc.).
+2) If it contains gendered language, we then count the number of words that are considered to be social stereotypes about women (i.e. “weak,” “modest,” “virgin,” “slut,” “whore,” “sexy,” “feminine,” “sensitive,” “emotional,” “gentle,” “soft,” “pretty,” “bitch,” “sexual” etc.).
+Finally, we normalize this count for all headlines within each outlet as a score between 0 and 1, and we aggregate (i.e. average) this score for each outlet.
+(site from pudding https://pudding.cool/2022/02/women-in-headlines/)
 
 
 A cumulative bar graph for the words used to describe women used in headlines. They are divided into 5 main categories with crime and violence having the most words and the highest frequency. The graph is interactive so each word can be highlighted with the individual word and frequency.
@@ -89,44 +101,60 @@ word_theme_rank %>%
        x = "")
 ```
 
+
+NEED TO FIX DOT AT THE END
+
+```{r}
+polarity_over_time %>% 
+  group_by(`year`) %>% 
+  summarise(women_mean = mean(`women_polarity_mean`),
+            all_mean = mean(`all_polarity_mean`),
+            year) %>% 
+  ggplot()+
+  geom_smooth(aes(x=`year`, y=`women_mean`), color = "blue", se = FALSE)+
+  geom_smooth(aes(x=`year`, y=`all_mean`), color = "black", se = FALSE)+
+  geom_point(aes(x=max(`year`), y=`women_mean`, color = "blue"))+
+  geom_point(aes(x=max(`year`), y=`all_mean`))
+```
+
+
+
 Polarity from sites, base polarity (black) to women polarity (blue) with the differences as a line segment, they are ordered by polarity of women value, not by differences
 Audrey's Polarity Graph
 ```{r, fig.height= 12, fig.width= 4}
 polarity_site %>% 
   ggplot()+
-  geom_point(aes(x=polarity_base, y = fct_reorder(site, polarity_women)), size = 3)+
-  geom_point(aes(x=polarity_women, y = fct_reorder(site, polarity_women)), color = "blue", size = 3)+
+  geom_point(aes(x=polarity_base, y = fct_reorder(site, polarity_women)), size = 2)+
+  geom_point(aes(x=polarity_women, y = fct_reorder(site, polarity_women)), color = "blue", size = 2)+
   geom_segment(aes(x=polarity_base, xend=polarity_women, y=site, yend=site, color = country_of_pub), size = 1)
 ```
 
-Ellery's Polarity
-```{r, fig.height= 5}
-polarity_site %>%
-  filter(country_of_pub == "UK")%>%
-  ggplot()+
-  geom_point(aes(x = polarity_base, y = fct_reorder(site, polarity_women)), color = "skyblue", size = 2)+
-  geom_point(aes(x = polarity_women, y = fct_reorder(site, polarity_women)), color = "tomato2", size = 2)+
-  geom_segment(aes(x = polarity_base, xend = polarity_women, y = site, yend = site))
-```
-
-
 
 ```{r}
-headline_examples %>%
-  group_by(site)%>%
-  filter(country == "USA")%>%
-  summarize(mean_bias = mean(bias))%>%
-  ggplot(aes(y = fct_reorder(site, mean_bias), x = mean_bias))+
-  geom_point()
+last_ten_headlines <- headline_examples %>% 
+  arrange(`bias`) %>%
+  distinct(site, .keep_all = TRUE) %>% 
+  slice(1:10) %>% 
+  select(`headline_no_site`, `site`, `country`, `bias`)
 
+last_ten_headlines_table <- gt(last_ten_headlines)
+last_ten_headlines_table
 ```
+
+
+Ten example headlines from 10 different news sites, sorted by highest bias score
 
 ```{r}
-headline_examples%>%
-  filter(country == "USA")%>%
-  ggplot(aes(y= site, x = bias))+
-  geom_violin()
+top_ten_headlines <- headline_examples %>% 
+  arrange(desc(`bias`)) %>%
+  distinct(site, .keep_all = TRUE) %>% 
+  slice(1:10) %>% 
+  select(`headline_no_site`, `site`, `country`, `bias`)
+
+top_ten_headlines_table <- gt(top_ten_headlines)
+top_ten_headlines_table
 ```
+
 
 
 

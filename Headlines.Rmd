@@ -92,7 +92,7 @@ word_theme_rank %>%
   select(!`X`) %>% 
   ggplot(aes(y = word, x = count)) +
   geom_col(aes(fill = count))+
-  scale_fill_viridis_c(option = "inferno") +
+  scale_fill_viridis_c(option = "viridis") +
   facet_wrap(~theme,
             scales = "free")+
   theme(legend.position = "none")+
@@ -102,7 +102,7 @@ word_theme_rank %>%
 ```
 
 
-Smooth line graph displaying the average polarity of headlines over time with the value from 2020 being displayed with a data point. Would like to add labels to points!
+Smooth line graph displaying the average polarity of headlines over time with the value from 2020 being displayed with a data point. Want to place top label above line but need to expand boundries of graph! Would like to animate over time, if we have time.
 
 ```{r}
 polarity_over_time %>% 
@@ -111,37 +111,67 @@ polarity_over_time %>%
             all_mean = mean(`all_polarity_mean`),
             year) %>% 
   ggplot()+
-  geom_smooth(aes(x=`year`, y=`women_mean`), color = "blue", se = FALSE)+
+  geom_smooth(aes(x=`year`, y=`women_mean`), color = "springgreen4", se = FALSE)+
   geom_smooth(aes(x=`year`, y=`all_mean`), color = "black", se = FALSE)+
-  geom_point(aes(x=2020.0, y=0.425), color = "blue", size = 4, label = "Headlines about women") +
-  geom_point(aes(x=2020.0, y=0.28), size = 2.5, label = "Headlines about other topics")+
+  geom_point(aes(x=2020.0, y=0.425), 
+             color = "black", fill = "springgreen4", 
+             size = 5, stroke = 2, shape = 21) +
+  geom_point(aes(x=2020.0, y=0.28), size = 2.5)+
+  geom_label(label = "Headlines about\nwomen", x= 2019.4, y=0.40, color = "springgreen4")+
+  geom_label(label = "Headlines about\nother topics", x=2019.4, y= 0.25)+
   scale_x_continuous(breaks = c(2010, 2012, 2014, 2016, 2018, 2020))+
   labs(title = "Average of Polarity of News Headlines over Time",
        y = "",
-       x = "")
+       x = "")+
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        axis.line.x = element_line(color = "black"))
 ```
 
 
 
-Polarity from sites, base polarity (black) to women polarity (blue) with the differences as a line segment, they are ordered by polarity of women value, not by differences
-Audrey's Polarity Graph
+Polarity from sites, base polarity (black) to women polarity (green) with the differences as a line segment, they are ordered by polarity of women value, not by differences
+
 ```{r, fig.height= 12, fig.width= 4}
 polarity_site %>% 
   ggplot()+
-  geom_point(aes(x=polarity_base, y = fct_reorder(site, polarity_women)), size = 2)+
-  geom_point(aes(x=polarity_women, y = fct_reorder(site, polarity_women)), color = "blue", size = 2)+
-  geom_segment(aes(x=polarity_base, xend=polarity_women, y=site, yend=site, color = country_of_pub), size = 1)
+  geom_segment(aes(x=polarity_base, xend=polarity_women, y=fct_reorder(site, polarity_women), yend=site, color = country_of_pub), size = 1)+
+  scale_color_manual(values = c("India" = "purple4",
+                    "South Africa" = "thistle3",
+                    "UK" = "steelblue4",
+                    "USA" = "mediumseagreen"))+
+  geom_point(aes(x=polarity_base, y = site), size = 2)+
+  geom_point(aes(x=polarity_women, y = site), color = "black", fill = "springgreen4", 
+             size = 3, stroke = 1, shape = 21)+
+  labs(title = "Polarity of News Outlines:\n Headlines about Women vs. Headlines about other topics",
+       y = "",
+       x = "Polarity",
+       color = "Country of\nPublication")+
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 
+Ten example headlines from 10 different news sites, sorted by lowest bias score
+
 ```{r}
 last_ten_headlines <- headline_examples %>% 
-  arrange(`bias`) %>%
-  distinct(site, .keep_all = TRUE) %>% 
+  rename("Headline" = `headline_no_site`,
+         "Site" = `site`,
+         "Country" = `country`,
+         "Bias" = `bias`) %>%
+  arrange(`Bias`) %>%
+  distinct(Site, .keep_all = TRUE) %>% 
   slice(1:10) %>% 
-  select(`headline_no_site`, `site`, `country`, `bias`)
+  select(`Headline`, `Site`, `Country`, `Bias`)
 
-last_ten_headlines_table <- gt(last_ten_headlines)
+last_ten_headlines_table <- gt(last_ten_headlines) %>% 
+  tab_header(title = "Least Biased Headline Examples") %>% 
+  data_color(columns = vars(`Headline`, `Site`, `Country`, `Bias`), 
+             colors = '#bccae0')
+
 last_ten_headlines_table
 ```
 
@@ -150,12 +180,20 @@ Ten example headlines from 10 different news sites, sorted by highest bias score
 
 ```{r}
 top_ten_headlines <- headline_examples %>% 
-  arrange(desc(`bias`)) %>%
-  distinct(site, .keep_all = TRUE) %>% 
+  rename("Headline" = `headline_no_site`,
+         "Site" = `site`,
+         "Country" = `country`) %>% 
+  mutate(Bias = round(bias, digits = 3)) %>% 
+  arrange(desc(`Bias`)) %>%
+  distinct(Site, .keep_all = TRUE) %>% 
   slice(1:10) %>% 
-  select(`headline_no_site`, `site`, `country`, `bias`)
+  select(`Headline`, `Site`, `Country`, `Bias`)
 
-top_ten_headlines_table <- gt(top_ten_headlines)
+top_ten_headlines_table <- gt(top_ten_headlines) %>% 
+  tab_header(title = "Most Biased Headline Examples") %>% 
+  data_color(columns = vars(`Headline`, `Site`, `Country`, `Bias`), 
+             colors = '#bccae0')
+
 top_ten_headlines_table
 ```
 

@@ -102,7 +102,7 @@ word_theme_rank %>%
 ```
 
 
-NEED TO FIX DOT AT THE END
+Smooth line graph displaying the average polarity of headlines over time with the value from 2020 being displayed with a data point. Would like to add labels to points!
 
 ```{r}
 polarity_over_time %>% 
@@ -113,8 +113,12 @@ polarity_over_time %>%
   ggplot()+
   geom_smooth(aes(x=`year`, y=`women_mean`), color = "blue", se = FALSE)+
   geom_smooth(aes(x=`year`, y=`all_mean`), color = "black", se = FALSE)+
-  geom_point(aes(x=max(`year`), y=`women_mean`, color = "blue"))+
-  geom_point(aes(x=max(`year`), y=`all_mean`))
+  geom_point(aes(x=2020.0, y=0.425), color = "blue", size = 4, label = "Headlines about women") +
+  geom_point(aes(x=2020.0, y=0.28), size = 2.5, label = "Headlines about other topics")+
+  scale_x_continuous(breaks = c(2010, 2012, 2014, 2016, 2018, 2020))+
+  labs(title = "Average of Polarity of News Headlines over Time",
+       y = "",
+       x = "")
 ```
 
 

@@ -16,7 +16,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r libraries, echo=FALSE}
+```{r libraries, echo=FALSE, warning = FALSE}
 library(tidyverse)     # for graphing and data cleaning
 library(lubridate)     # for date manipulation
 library(ggthemes)      # for even more plotting themes
@@ -67,7 +67,7 @@ pivot_country_word <- freq_country_words %>%
 \n
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 pivot_words <- freq_theme_words %>% 
   pivot_longer(cols = -theme,
                names_to = "word",
@@ -78,10 +78,10 @@ word_plot <- pivot_words %>%
   filter(theme != "No theme") %>% 
   ggplot(aes(x = theme, 
              y = freq, 
-             fill = fct_reorder(word, freq),
+             fill = fct_reorder(theme, word),
              text = paste("word:", word))) +
     geom_col(color = "black") +
-    scale_fill_viridis_d(option = "viridis") +
+    scale_fill_manual(values = c("#5c71d1", "#314394", "#5627a8", "#8536cf", "#942f99", "#a838c9")) +
     theme(legend.position = "none") +
     labs(title = "Cumulative Frequency of Words describing Women in Headlines",
        x = "",
@@ -103,8 +103,7 @@ word_theme_rank %>%
   select(!`X`) %>% 
   ggplot(aes(y = fct_reorder(word, theme), x = count)) +
   geom_col(aes(fill = theme))+
-  scale_fill_viridis_d(option = "viridis") +
-  #theme(legend.position = "none")+
+  scale_fill_manual(values = c("#5c71d1", "#314394", "#5627a8", "#8536cf", "#942f99", "#a838c9")) +
   theme(plot.title = element_text(hjust = 0.5))+
   labs(title = "Count of Top 5 words per Theme",
        y = "",
@@ -121,7 +120,7 @@ word_theme_rank %>%
 ##### Data was taken from news sites from four different countries with varying numbers of news sources used. From the United States of America, 86 new sites were used. From the United Kingdom, 41 news sites were used. From South Africa, 23 news sites were used. From India, 36 news sites were used. 
 \n
 
-```{r, fig.alt= "A world map with the USA, the UK, South Africa, and India colored in green to signify where data was taken from.", echo=FALSE}
+```{r, fig.alt= "A world map with the USA, the UK, South Africa, and India colored in green to signify where data was taken from.", echo=FALSE, warning = FALSE}
 world_map <- map_data("world")
 
 headline_site %>% 
@@ -247,6 +246,7 @@ top_three_headlines <- headline_examples %>%
   rename("Headline" = `headline_no_site`,
          "Site" = `site`,
          "Country" = `country`) %>% 
+  filter(Site != "dailymail.co.uk") %>% 
   mutate(Bias = round(bias, digits = 3)) %>% 
   arrange(desc(`Bias`)) %>%
   distinct(Site, .keep_all = TRUE) %>% 

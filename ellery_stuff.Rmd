@@ -245,7 +245,9 @@ sites%>%
 word_theme_rank %>% 
   filter(`rank` < 6) %>% 
   select(!`X`) %>% 
-  ggplot(aes(y = fct_reorder2(word, count), x = count)) +
+ # ggplot(aes(y = fct_reorder2(word, count), x = count)) +
+
+  ggplot(aes(y = fct_reorder(word, theme), x = count)) +
   geom_col(aes(fill = theme))+
   scale_fill_viridis_d(option = "viridis") +
   #theme(legend.position = "none")+
@@ -255,6 +257,9 @@ word_theme_rank %>%
 ```
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 670825dfc667c9d69a6617d59809a605f1fdf426
 

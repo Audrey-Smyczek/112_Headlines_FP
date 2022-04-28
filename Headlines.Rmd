@@ -39,20 +39,21 @@ polarity_site <- read.csv("https://raw.githubusercontent.com/the-pudding/data/ma
 polarity_over_time <- read.csv("https://raw.githubusercontent.com/the-pudding/data/master/women-in-headlines/polarity_comparison_country_time.csv")
 ```
 
-POLARITY CALCULATIONS
-We measure polarity by performing sentiment analysis on each headline using the Vader python package, where each headline gets a sentiment score from -1 to 1 (from more negative to more positive). Because we are interested in polarity, we take the absolute value of each headline's score.
 
-BIAS CALCULATIONS
-We measure gender bias by tracking the combined occurrence of gendered language and social stereotypes usually associated with women. We do this in two steps:
-1) We check if a headline contains gendered language (i.e. “spokeswoman,” “chairwoman,” “she,” “her,” “bride,” “daughter,” “daughters,” “female,” “fiancee,” “girl,” “girlfriend” etc.).
-2) If it contains gendered language, we then count the number of words that are considered to be social stereotypes about women (i.e. “weak,” “modest,” “virgin,” “slut,” “whore,” “sexy,” “feminine,” “sensitive,” “emotional,” “gentle,” “soft,” “pretty,” “bitch,” “sexual” etc.).
-Finally, we normalize this count for all headlines within each outlet as a score between 0 and 1, and we aggregate (i.e. average) this score for each outlet.
-(site from pudding https://pudding.cool/2022/02/women-in-headlines/)
+```{r, echo = FALSE}
+pivot_country_word <- freq_country_words %>% 
+  pivot_longer(cols = -country,
+               names_to = "word",
+               values_to = "number") %>% 
+  filter(word != "X") %>% 
+  na.omit()
+```
 
 
-Map of all the countries that data is taken from
 
-```{r}
+Data was taken from news sites from four different countries with varying numbers of news sources used. From the United States of America, 86 new sites were used. From the United Kingdom, 41 news sites were used. From South Africa, 23 news sites were used. From India, 36 news sites were used. The data taken involved the frequency of words used sorted by theme and frequency of words by country. The themes are crime and violence, empowerment, female stereotypes, people and places, race, ethnicity and identity, and no theme. The words were also ranked by theme based on frequency of word use. The news sites were also assigned values for bias and polarity, the calculations are explained at the bottom of the article. There are also headline examples which are individually given a bias score.
+
+```{r, fig.alt= "A world map with the USA, the UK, South Africa, and India colored in green to signify where data was taken from."}
 world_map <- map_data("world")
 
 headline_site %>% 
@@ -70,14 +71,22 @@ headline_site %>%
     theme_map()
 ```
 
-Number of sites for each country
-India- 36
-South Africa- 23
-UK- 41
-USA- 86
 
-PUT IN ELLERY BAR CHART FOR COUNTRY BIAS
+The average bias of news sites often varies from the minimum and maximum bias values given to different headlines. The following column chart displays the mean bias by country along with the maximum bias of a headline published by a site in the country. The minimum bias score is zero for all countries so no visual representation was added.
 
+```{r}
+headline_site %>%
+  group_by(country_of_pub) %>%
+  summarize(mean_bias = mean(bias), max_bias = max(bias)) %>% 
+  ggplot()+
+  geom_col(aes(y = country_of_pub, x = max_bias), fill = "lightblue2", width = .75)+
+  geom_col(aes(y = country_of_pub, x = mean_bias), width = .5, fill = "tan2")+
+  scale_x_continuous(limits = c(0, 1))+
+  labs(title = "Average and Maximum Bias Score by Country",
+       x = "Bias",
+       y = "Country of Publication")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
 
 
 A cumulative bar graph for the words used to describe women used in headlines. They are divided into 5 main categories with crime and violence having the most words and the highest frequency. The graph is interactive so each word can be highlighted with the individual word and frequency.
@@ -101,26 +110,34 @@ word_plot <- pivot_words %>%
     #                   breaks = waiver())+
     labs(title = "Cumulative Frequency of Words describing Women in Headlines",
        x = "",
-       y = "Frequency")
+       y = "Frequency")+
+    theme(plot.title = element_text(hjust = 0.5))
+
 
 ggplotly(word_plot,
          tooltip = c("y", "text"))
 ```
 
 
+The words taken from headlines across different news sites were sorted into theme categories and ranked by occurrence. The following column chart describes the top five words used sorted by theme with the word 'man' appearing almost triple the average word use. Crime and violence have the highest average word count of any theme. 
+
 ```{r}
-pivot_country_word <- freq_country_words %>% 
-  pivot_longer(cols = -country,
-               names_to = "word",
-               values_to = "number") %>% 
-  filter(word != "X") %>% 
-  na.omit()
+word_theme_rank %>% 
+  filter(`rank` < 6) %>% 
+  select(!`X`) %>% 
+  ggplot(aes(y = fct_reorder(word, theme), x = count)) +
+  geom_col(aes(fill = theme))+
+  scale_fill_viridis_d(option = "viridis") +
+  #theme(legend.position = "none")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  labs(title = "Count of Top 5 words per Theme",
+       y = "",
+       x = "")
 ```
 
-PUT ELLERY'S CODE HERE FOR THEME WORDS
 
-
-Smooth line graph displaying the average polarity of headlines over time with the value from 2020 being displayed with a data point. Want to place top label above line but need to expand boundaries of graph! Would like to animate over time, if we have time.
+The average polarity of news headlines in regards to women has been higher for the past ten years. 
+I am unsure how to describe polarity well.
 
 ```{r}
 polarity_over_time %>% 
@@ -153,7 +170,7 @@ polarity_over_time %>%
 
 Polarity from sites, base polarity (black) to women polarity (green) with the differences as a line segment, they are ordered by polarity of women value, not by differences
 
-```{r, fig.height= 12, fig.width= 4}
+```{r, fig.height= 24, fig.width= 8}
 polarity_site %>% 
   ggplot()+
   geom_segment(aes(x=polarity_base, xend=polarity_women, y=fct_reorder(site, polarity_women), yend=site), size = 1)+
@@ -168,9 +185,7 @@ polarity_site %>%
 
 
 
-
-
-Three example headlines from 3 different news sites, sorted by lowest bias score
+Three examples of headlines with no calculated bias
 
 ```{r}
 last_three_headlines <- headline_examples %>% 
@@ -192,7 +207,7 @@ last_three_headlines_table
 ```
 
 
-Ten example headlines from 3 different news sites, sorted by highest bias score
+Three examples of highly biased headlines
 
 ```{r}
 top_three_headlines <- headline_examples %>% 
@@ -215,6 +230,14 @@ top_three_headlines_table
 
 
 
+POLARITY CALCULATIONS
+We measure polarity by performing sentiment analysis on each headline using the Vader python package, where each headline gets a sentiment score from -1 to 1 (from more negative to more positive). Because we are interested in polarity, we take the absolute value of each headline's score.
 
+BIAS CALCULATIONS
+We measure gender bias by tracking the combined occurrence of gendered language and social stereotypes usually associated with women. We do this in two steps:
+1) We check if a headline contains gendered language (i.e. “spokeswoman,” “chairwoman,” “she,” “her,” “bride,” “daughter,” “daughters,” “female,” “fiancee,” “girl,” “girlfriend” etc.).
+2) If it contains gendered language, we then count the number of words that are considered to be social stereotypes about women (i.e. “weak,” “modest,” “virgin,” “slut,” “whore,” “sexy,” “feminine,” “sensitive,” “emotional,” “gentle,” “soft,” “pretty,” “bitch,” “sexual” etc.).
+Finally, we normalize this count for all headlines within each outlet as a score between 0 and 1, and we aggregate (i.e. average) this score for each outlet.
+(site from pudding https://pudding.cool/2022/02/women-in-headlines/)
 
 

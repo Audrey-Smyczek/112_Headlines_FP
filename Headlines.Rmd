@@ -173,21 +173,22 @@ headline_site %>%
 ##### In this graph, we visualize how the polarity of headlines has changed over the past ten years. The polarity scores represent how sensationalized a headline is. Sensational headlines sacrifice accuracy in an attempt to provoke an emotional response from readers. They are designed to generate interest through emotional manipulation. In general, the polarity of news headlines about women is higher than the polarity for other headlines. In the past ten years, polarity has increased, and the difference between the polarity of headlines about women and the polarity of general headlines has widened.
 \n
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 polarity_over_time %>% 
   group_by(`year`) %>% 
   summarise(women_mean = mean(`women_polarity_mean`),
             all_mean = mean(`all_polarity_mean`),
             year) %>% 
+  ungroup() %>% 
   ggplot()+
-  geom_smooth(aes(x=`year`, y=`women_mean`), color = "purple4", se = FALSE)+
-  geom_smooth(aes(x=`year`, y=`all_mean`), color = "black", se = FALSE)+
-  geom_point(aes(x=2020.0, y=0.425), 
-             color = "black", fill = "#c2b1e3", 
+  geom_line(aes(x=`year`, y=`women_mean`), color = "purple4", se = FALSE)+
+  geom_line(aes(x=`year`, y=`all_mean`), color = "black", se = FALSE)+
+  geom_point(aes(x=`year`, y=`women_mean`),
+             color = "black", fill = "#c2b1e3",
              size = 5, stroke = 2, shape = 21) +
-  geom_point(aes(x=2020.0, y=0.28), size = 2.5)+
-  geom_label(label = "Headlines about\nwomen", x= 2019.4, y=0.40, color = "purple4")+
-  geom_label(label = "Headlines about\nother topics", x=2019.4, y= 0.25)+
+  geom_point(aes(x=`year`, y=`all_mean`), size = 2.5)+
+  geom_label(label = "Headlines about \nwomen", aes(x=`year`, y= `women_mean`), color = "purple4")+
+  geom_label(label = "Headlines about\nother topics", aes(x=`year`, y= `all_mean`))+
   scale_x_continuous(breaks = c(2010, 2012, 2014, 2016, 2018, 2020))+
   labs(title = "Average Polarity of News Headlines over Time",
        y = "",
@@ -196,7 +197,8 @@ polarity_over_time %>%
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.major.y = element_blank(),
-        axis.line.x = element_line(color = "black"))
+        axis.line.x = element_line(color = "black"))+
+  transition_reveal(year)
 ```
 
 
@@ -285,6 +287,7 @@ We measure gender bias by tracking the combined occurrence of gendered language 
 Finally, we normalize this count for all headlines within each outlet as a score between 0 and 1, and we aggregate (i.e. average) this score for each outlet.\n
 
 ### Data Source\n
-(site from pudding https://pudding.cool/2022/02/women-in-headlines/)
+https://github.com/the-pudding/data/tree/master/women-in-headlines
+
 
 

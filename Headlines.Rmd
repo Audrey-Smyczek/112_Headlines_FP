@@ -51,6 +51,9 @@ pivot_country_word <- freq_country_words %>%
 
 Small change
 
+
+
+
 Data was taken from news sites from four different countries with varying numbers of news sources used. From the United States of America, 86 new sites were used. From the United Kingdom, 41 news sites were used. From South Africa, 23 news sites were used. From India, 36 news sites were used. The data taken involved the frequency of words used sorted by theme and frequency of words by country. The themes are crime and violence, empowerment, female stereotypes, people and places, race, ethnicity and identity, and no theme. The words were also ranked by theme based on frequency of word use. The news sites were also assigned values for bias and polarity, the calculations are explained at the bottom of the article. There are also headline examples which are individually given a bias score.
 
 ```{r, fig.alt= "A world map with the USA, the UK, South Africa, and India colored in green to signify where data was taken from."}

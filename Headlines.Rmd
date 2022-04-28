@@ -53,12 +53,17 @@ pivot_country_word <- freq_country_words %>%
   na.omit()
 ```
 
+
+![](headlines_graphic.jpg)
+
+
 ## Women in Headlines Data
 
 #### The data taken involved the frequency of words used sorted by theme and frequency of words by country. The themes are crime and violence, empowerment, female stereotypes, people and places, race, ethnicity and identity, and no theme. The words were also ranked by theme based on frequency of word use. The news sites were also assigned values for bias and polarity, the calculations are explained at the bottom of the article. There are also headline examples which are individually given a bias score.
 \n
 
 ***
+
 
 ## Words used in Headlines
 \n

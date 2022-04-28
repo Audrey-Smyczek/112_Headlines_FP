@@ -69,7 +69,7 @@ headlines %>%
   select(site, headline_no_site, country, bias)%>%
   arrange(desc(bias))%>%
   distinct(site, .keep_all = TRUE)%>%
-  slice(1:10) %>%
+  slice(1:3) %>%
   gt()%>%
     tab_header(title = "Subset of Headlines with the Largest Bias Scores")
   
@@ -81,7 +81,7 @@ headlines %>%
   select(site, headline_no_site, country, bias)%>%
   arrange(bias)%>%
   distinct(site, .keep_all = TRUE)%>%
-  slice(1:10) %>%
+  slice(1:3) %>%
   gt()%>%
     tab_header(title = "Subset of Headlines with the Smallest Bias Scores")
   
@@ -188,5 +188,73 @@ word_theme_rank %>%
        y = "",
        x = "")
 ```
+
+# polarity country map 
+
+```{r}
+library(maps)          # for map data
+library(ggmap)   
+```
+
+
+
+
+```{r}
+world <- map_data("world") 
+
+ 
+ggplot() +
+  geom_map(data = world, map = world,
+           aes(long, lat, map_id = region), fill = "lightgray")+
+  geom_map(data = country_bias, 
+           map = world,
+           aes(map_id = country_of_pub), fill = "springgreen4") +
+  expand_limits(x =  world$long , y =  world$lat) + 
+  theme_void()
+```
+
+```{r}
+country_bias <- sites%>%
+  group_by(country_of_pub)%>%
+  summarize(mean_bias = mean(bias), max_bias = max(bias))
+```
+
+
+```{r}
+country_bias%>%
+  ggplot()+
+  geom_col(aes(y = country_of_pub, x = max_bias), fill = "lightblue2", width = .75)+
+  geom_col(aes(y = country_of_pub, x = mean_bias), width = .5, fill = "tan2")+
+  scale_x_continuous(limits = c(0, 1))
+  
+# put data in text near bar and match color
+```
+
+
+color = lightblue2, tan2, darkslateblue? 
+
+```{r}
+sites%>%
+  group_by(country_of_pub)%>%
+  summarize(num_sites = n())
+```
+
+
+
+```{r}
+word_theme_rank %>% 
+  filter(`rank` < 6) %>% 
+  select(!`X`) %>% 
+  ggplot(aes(y = fct_reorder2(word, count), x = count)) +
+  geom_col(aes(fill = theme))+
+  scale_fill_viridis_d(option = "viridis") +
+  #theme(legend.position = "none")+
+  labs(title = "Count of Top 5 words per Theme",
+       y = "",
+       x = "")
+```
+
+
+
 
 

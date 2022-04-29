@@ -257,5 +257,14 @@ word_theme_rank %>%
 ```
 
 
-
+```{r, fig.width= 6}
+library(treemapify)
+pivot_words %>% 
+  filter(theme == "crime and violence") %>% 
+  group_by(word)%>%
+  ggplot(aes(area = freq,
+             label = word)) +
+  geom_treemap(color = "purple4", fill = "white")+
+  geom_treemap_text(place = "center")
+```
 

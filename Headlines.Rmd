@@ -274,7 +274,7 @@ polarity_site %>%
         panel.grid.minor.x = element_blank())+
   annotate("label", x = .1, y = 176, label = "Average Polarity of \n Headlines About Women", color = "mediumpurple2")+
   annotate("label", x = .1, y = 172, label = "Average Polarity of \n General Headlines")+
-  labs(title = "Differences in Site Polarity: Headlines about Women vs General Headlines")
+  labs(title = "")
 ```
 
 ***

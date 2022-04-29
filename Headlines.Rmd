@@ -53,7 +53,7 @@ pivot_country_word <- freq_country_words %>%
   na.omit()
 ```
 
-
+## Introduction
 ![](headlines_graphic.jpg)
 
 
@@ -72,23 +72,24 @@ pivot_country_word <- freq_country_words %>%
 \n
 
 
-```{r, echo=FALSE, warning=FALSE}
+```{r, echo=FALSE, warning=FALSE, fig.height= 15, fig.width= 10}
 pivot_words <- freq_theme_words %>% 
   pivot_longer(cols = -theme,
                names_to = "word",
                values_to = "freq") %>% 
   na.omit()
 
-word_plot <- pivot_words %>% 
+word_plot <- pivot_words %>%
+  #mutate(word = fct_infreq(word))%>%
   filter(theme != "No theme") %>% 
-  ggplot(aes(x = theme, 
+  ggplot(aes(x = fct_reorder(theme, desc(freq), sum), 
              y = freq, 
              fill = fct_reorder(theme, word),
              text = paste("word:", word))) +
-    geom_col(color = "black") +
-    scale_fill_manual(values = c("#5c71d1", "#314394", "#5627a8", "#8536cf", "#942f99", "#a838c9")) +
+    geom_col(color = "gray26", size = .1) +
+    scale_fill_manual(values = c("lightskyblue2", "cornflowerblue", "mediumpurple3", "mediumpurple2", "slateblue1")) +
     theme(legend.position = "none") +
-    labs(title = "Cumulative Frequency of Words describing Women in Headlines",
+    labs(title = "Cumulative Frequency of Words Describing Women in Headlines",
        x = "",
        y = "Frequency")+
     theme(plot.title = element_text(hjust = 0.5))
@@ -96,6 +97,26 @@ word_plot <- pivot_words %>%
 
 ggplotly(word_plot,
          tooltip = c("y", "text"))
+```
+### Crime and Violences Words Displayed by Frequency
+```{r, fig.width= 6}
+library(treemapify)
+pivot_words %>% 
+  filter(theme == "crime and violence") %>% 
+  group_by(word)%>%
+  ggplot(aes(area = freq,
+             label = word)) +
+  geom_treemap(color = "purple4", fill = "white")+
+  geom_treemap_text(place = "center")
+```
+```{r, fig.width= 6}
+
+pivot_words %>% 
+  #filter(theme == "crime and violence") %>% 
+  group_by(word)%>%
+ggplot(aes(y = fct_reorder(word, freq), x = freq))+
+  geom_col()+
+  facet_wrap(~theme, scales = "free_y")
 ```
 
 ### Top Five Words per Theme

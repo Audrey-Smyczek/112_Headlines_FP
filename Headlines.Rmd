@@ -98,7 +98,9 @@ word_plot <- pivot_words %>%
     labs(title = "Cumulative Frequency of Words Describing Women in Headlines",
        x = "",
        y = "Frequency")+
-    theme(plot.title = element_text(hjust = 0.5))
+    theme(plot.title = element_text(hjust = 0.5),
+          panel.grid.minor.x = element_blank(),
+          panel.grid.major.x = element_blank())
 
 
 ggplotly(word_plot,
@@ -110,7 +112,7 @@ ggplotly(word_plot,
 \n
 #### This plot reveals how frequently each word, within the theme of crime and violence, is used. 'Kill' is the most common word, occuring nearly 8000 times in the dataset. 
 
-```{r, echo=FALSE, warning=FALSE, fig.width= 6, fig.alt= "A column chart that shows the frequency of words in the crime and violence theme in descending order with kill being used the most frequently and horror being used the least frequently."}
+```{r, echo=FALSE, warning=FALSE, fig.width= 8, fig.height=6, fig.alt= "A column chart that shows the frequency of words in the crime and violence theme in descending order with kill being used the most frequently and horror being used the least frequently."}
 
 pivot_words %>% 
   filter(theme == "crime and violence") %>% 
@@ -130,7 +132,7 @@ pivot_words %>%
 #### Here, we display the top 5 most frequently occuring words in each theme (in this plot we have included words with 'no theme'). The word 'man' appears almost three times more frequently than the average frequency of all words.  
 \n
 
-```{r, echo=FALSE, fig.alt= "A column chart that shows the top five words for each theme. Man, from no theme, is the word used most frequently."}
+```{r, echo=FALSE, fig.width = 8, fig.height = 6, fig.alt= "A column chart that shows the top five words for each theme. Man, from no theme, is the word used most frequently."}
 word_theme_rank %>% 
   filter(`rank` < 6) %>% 
   select(!`X`) %>% 

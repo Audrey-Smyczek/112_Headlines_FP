@@ -1,5 +1,5 @@
 ---
-title: "Headlines"
+title: "Women in Headlines"
 author:
 - name: "Audrey Smyczek"
 - name: "Ellery Island"
@@ -53,34 +53,32 @@ pivot_country_word <- freq_country_words %>%
   na.omit()
 ```
 
-<<<<<<< HEAD
 ## Introduction
+
+#### Our project investigates news headlines about women from many types of news sites in four different countries. Since much of the information we recieve daily about current events and popular culture comes from new sites, it is important to investigate any site-spanning tendencies or biases in the reporting about women. In this project, we examine four aspects of headlines about women: which words are most commonly used, how polarizing they are, and the typical bias of the sites and the average bias of all of a country's sites. To provide more context and to give some concrete examples, we have included a graphic with a few headlines from the data set.  
+
 ![](headlines_graphic.jpg)
 
-=======
->>>>>>> 8000e0777d88f16020f124d0a6f0b5fa6a1bc957
+## Data
 
-## Women in Headlines Data
-
-#### The data taken involved the frequency of words used sorted by theme and frequency of words by country. The themes are crime and violence, empowerment, female stereotypes, people and places, race, ethnicity and identity, and no theme. The words were also ranked by theme based on frequency of use. The news sites were also assigned values for bias and polarity for individiual articles and overall. The sites were given a base polarity for all articles and a polarity for their articles that discuss women. Here are a few examples of real headlines published by news sites.
+#### For this project, we used data from The Pudding (we describe how they collected the data at the end). The data is composed of mutliple datasets with different variables. One dataset contains information on the most common words, their frequency and their theme (crime and violence, empowerment, female stereotypes, people and places, race, ethnicity and identity, and no theme). Another dataset lists the headlines, which site published them, the country of the site, and the bias score for the headline. Other datasets included information on polarity of each site's headlines about women and about all topics for the past 10 years, the average bias for each site. 
 \n
-
-
-![](headlines_graphic.jpg)
-
 
 ***
 
 
-## Words Appearing in Headlines\n
+## The Words Used in Headlines
+\n
 
 
-### Freqency per Theme \n
+### The Usage Frequency of the Words per Theme 
+\n
 
-##### A cumulative bar graph for the words used to describe women used in headlines. They are divided into 5 main categories with crime and violence having the most words and the highest frequency. The graph is interactive so each word can be highlighted with the individual word and frequency.\n
+##### Below is a bar graph that shows the cumulative frequency (how often a word appears accross all the headlines) of words in each theme. Each bar represents a different theme; the blocks within a bar represent the words that fall within each theme. The graph is interactive: you can view the word and its frequency that correspond to each block. This graph clearly shows that the words within the crime and violence theme are used the most frequently. We investigate the usage of specific words in this theme in the next graph.
+\n
 
 
-```{r, echo=FALSE, warning=FALSE, fig.height= 15, fig.width= 10}
+```{r, echo=FALSE, warning=FALSE}
 pivot_words <- freq_theme_words %>% 
   pivot_longer(cols = -theme,
                names_to = "word",
@@ -95,7 +93,7 @@ word_plot <- pivot_words %>%
              fill = fct_reorder(theme, word),
              text = paste("word:", word))) +
     geom_col(color = "gray26", size = .1) +
-    scale_fill_manual(values = c("lightskyblue2", "cornflowerblue", "mediumpurple3", "mediumpurple2", "slateblue1")) +
+    scale_fill_manual(values = c("lightskyblue2", "cornflowerblue", "slateblue1", "mediumpurple2", "#c1a0fa")) +
     theme(legend.position = "none") +
     labs(title = "Cumulative Frequency of Words Describing Women in Headlines",
        x = "",
@@ -106,29 +104,29 @@ word_plot <- pivot_words %>%
 ggplotly(word_plot,
          tooltip = c("y", "text"))
 ```
-### Crime and Violences Words Displayed by Frequency
-```{r, fig.width= 6}
-library(treemapify)
+
+
+### Crime and Violence Words Displayed by Frequency
+\n
+#### This plot reveals how frequently each word, within the theme of crime and violence, is used. 'Kill' is the most common word, occuring nearly 8000 times in the dataset. 
+
+```{r, echo=FALSE, warning=FALSE, fig.width= 6}
+
 pivot_words %>% 
   filter(theme == "crime and violence") %>% 
-  group_by(word)%>%
-  ggplot(aes(area = freq,
-             label = word)) +
-  geom_treemap(color = "purple4", fill = "white")+
-  geom_treemap_text(place = "center")
-```
-```{r, fig.width= 6}
-
-pivot_words %>% 
-  #filter(theme == "crime and violence") %>% 
-  group_by(word)%>%
-ggplot(aes(y = fct_reorder(word, freq), x = freq))+
-  geom_col()+
-  facet_wrap(~theme, scales = "free_y")
+  ggplot(aes(y = fct_reorder(word, freq), x = freq)) +
+    geom_col(fill = "mediumpurple2")+
+    facet_wrap(~theme, scales = "free_y") +
+    labs(y = NULL, x = NULL, fill = NULL) +
+    theme(plot.title = element_text(hjust = 0.5),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())+
+  labs(title = "The Frequency of Crime and Violence Words")
 ```
 
-### Top Five Words per Theme
-##### The words taken from headlines across different news sites were sorted into theme categories and ranked by occurrence. The following column chart describes the top five words used sorted by theme with the word 'man' appearing almost triple the average word use. Crime and violence have the highest average word count of any theme. 
+### Top Five Most Frequent Words per Theme
+#### Here, we display the top 5 most frequently occuring words in each theme (in this plot we have included words with 'no theme'). The word 'man' appears almost three times more frequently than the average frequency of all words.  
 \n
 
 ```{r, echo=FALSE}
@@ -137,19 +135,25 @@ word_theme_rank %>%
   select(!`X`) %>% 
   ggplot(aes(y = fct_reorder(word, theme), x = count)) +
   geom_col(aes(fill = theme))+
-  scale_fill_manual(values = c("#5c71d1", "#314394", "#5627a8", "#8536cf", "#942f99", "#a838c9")) +
+  scale_fill_manual(values = c("lightskyblue2", "cornflowerblue", "slateblue1", "mediumpurple2", "#c1a0fa", "#dca0fa")) +
   theme(plot.title = element_text(hjust = 0.5))+
-  labs(title = "",
+  labs(title = "The Frequency of the Most Common Words in Each Theme",
        y = "",
-       x = "")
+       x = "") +
+      theme(plot.title = element_text(hjust = 0.5),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+  
 ```
 
 *** 
 
-## Data taken by Country
+## Data by Country
 \n
 
-### Country Map\n
+### Country Map
+\n
 
 ##### Data was taken from news sites from four different countries with varying numbers of news sources used. From the United States of America, 86 new sites were used. From the United Kingdom, 41 news sites were used. From South Africa, 23 news sites were used. From India, 36 news sites were used. 
 \n
@@ -163,17 +167,18 @@ headline_site %>%
   ggplot() +
     geom_map(data = world_map, map = world_map,
              aes(long, lat, map_id = region),
-             fill = "lightgray")+
+             fill = "#e7defa")+
     geom_map(map = world_map,
             aes(map_id = `country_of_pub`),
-            fill = "purple4",
-            color = "purple4")+
+            fill = "mediumpurple2",
+            color = "mediumpurple2")+
     expand_limits(x = world_map$long, y = world_map$lat) + 
     theme_map()
 ```
 
-### Bias Score by Country\n
-##### The average bias of news sites often varies from the minimum and maximum bias values given to different headlines. The following column chart displays the mean bias by country along with the maximum bias of a headline published by a site in the country. The minimum bias score is zero for all countries so no visual representation was added.
+### Bias Score by Country
+\n
+##### The following column chart displays the mean bias by country along with the maximum bias of a headline published by a site in the country. The minimum bias score is zero for all countries so no visual representation was added. The UK has the highest average bias as well as the highest maximum bias.
 \n
 
 ```{r, echo=FALSE}
@@ -182,30 +187,33 @@ headline_site %>%
   summarize(mean_bias = mean(bias), max_bias = max(bias)) %>% 
   ggplot()+
   geom_col(aes(y = country_of_pub, x = max_bias), 
-           fill = "#c2b1e3", width = .75)+
+           fill = "#e7defa", width = .75)+
   geom_col(aes(y = country_of_pub, x = mean_bias), 
-           width = .5, fill = "purple4")+
+           width = .5, fill = "mediumpurple2")+
   geom_text(aes(y= country_of_pub, x = mean_bias, label = round(mean_bias, 3)),
+            color = "mediumpurple2",
             hjust = -0.2, size = 3, position = position_dodge(width = 1))+
   geom_text(aes(y= country_of_pub, x = max_bias, label = round(max_bias, 3)),
+            color = "#c1a0fa",
             hjust = -0.2, size = 3, position = position_dodge(width = 1))+
   scale_x_continuous(limits = c(0, 1))+
-  labs(title = "Average and Maximum Bias Score",
-       x = "Bias",
+  labs(title = "Average and Maximum Bias Score by Country",
+       x = NULL,
        y = "")+
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.minor.x = element_blank(),
         panel.grid.major.y = element_blank(),
-        panel.grid.minor.y = element_blank(),)
+        panel.grid.minor.y = element_blank())
 ```
 
 ***
 
-## Polarity of Words
+## The Polarity of Headlines
 \n
 
-### Polarity over Time\n
-##### In this graph, we visualize how the polarity of headlines has changed over the past ten years. The polarity scores represent how sensationalized a headline is. Sensational headlines sacrifice accuracy in an attempt to provoke an emotional response from readers. They are designed to generate interest through emotional manipulation. In general, the polarity of news headlines about women is higher than the polarity for other headlines. In the past ten years, polarity has increased, and the difference between the polarity of headlines about women and the polarity of general headlines has widened.
+### Polarity over Time
+\n
+##### In this graph, we visualize how the polarity of headlines has changed over the past ten years. The polarity scores represent how sensationalized a headline is. Sensational headlines sacrifice accuracy in an attempt to provoke an emotional response from readers. They are designed to generate interest through emotional manipulation. In general, the polarity of news headlines about women is higher than the polarity for other headlines. In the past ten years, polarity has increased, and the gap between the polarity of headlines about women and the polarity of general headlines has widened.
 \n
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -216,7 +224,7 @@ polarity_time_anim <- polarity_over_time %>%
             year) %>% 
   ungroup() %>% 
   ggplot()+
-  geom_line(aes(x=`year`, y=`women_mean`), color = "purple4", se = FALSE)+
+  geom_line(aes(x=`year`, y=`women_mean`), color = "mediumpurple2", se = FALSE)+
   geom_line(aes(x=`year`, y=`all_mean`), color = "black", se = FALSE)+
   geom_point(aes(x=`year`, y=`women_mean`),
              color = "black", fill = "#c2b1e3",
@@ -245,7 +253,8 @@ anim_save("polarity_time_anim.gif",
 knitr::include_graphics("polarity_time_anim.gif")
 ```
 
-### Polarity of News Sites\n
+### Polarity of News Sites
+\n
 ##### In the graph below, the difference in the average polarity score between headlines about women and other headlines are shown for each site. The sites are ordered by the largest average polarity of headlines about women. Almost every site's headlines about women are more polarizing than their headlines about other topics. 
 \n
 
@@ -254,22 +263,24 @@ polarity_site %>%
   ggplot()+
   geom_segment(aes(x=polarity_base, xend=polarity_women, y=fct_reorder(site, polarity_women), yend=site), size = 1)+
   geom_point(aes(x=polarity_base, y = site), size = 2)+
-  geom_point(aes(x=polarity_women, y = site), color = "black", fill = "#c2b1e3", 
+  geom_point(aes(x=polarity_women, y = site), color = "black", fill = "#c1a0fa", 
              size = 3, stroke = 1, shape = 21)+
   labs(title = "",
        y = "",
        x = "Polarity")+
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank())
+        panel.grid.minor.x = element_blank())+
+  annotate("text", x = .5, y = 175, label = "Average Polarity of \n Headlines About Women", color = "mediumpurple2")+
+  annotate("text", x = .5, y = 173, label = "Average Polarity of \n General Headlines")+
+  labs(title = "Differences in Site Polarity: Headlines about Women vs General Headlines")
 ```
 
 ***
 
-## Headline Examples\n
-
+## Headline Examples
 \n
-
+#### Below we show a few more examples of headlines along with their site, country and bias score. The first table shows a subset of the least biased headlines about women, and the second table show a few of the most biased headlines. 
 ```{r, echo=FALSE}
 last_three_headlines <- headline_examples %>% 
   rename("Headline" = `headline_no_site`,
@@ -282,13 +293,14 @@ last_three_headlines <- headline_examples %>%
   select(`Headline`, `Site`, `Country`, `Bias`)
 
 last_three_headlines_table <- gt(last_three_headlines) %>% 
-  tab_header(title = "Least Biased Headline Examples") %>% 
-  tab_style(style = cell_text(color = "purple4"),
-            locations = cells_body())
+  tab_header(title = "Least Biased Headline Examples") #%>% 
+  #tab_style(style = cell_text(color = "mediumpurple2"),
+           # locations = cells_column_labels())
 
 last_three_headlines_table
 ```
 
+\n
 \n
 
 ```{r, echo=FALSE}
@@ -304,30 +316,23 @@ top_three_headlines <- headline_examples %>%
   select(`Headline`, `Site`, `Country`, `Bias`)
 
 top_three_headlines_table <- gt(top_three_headlines) %>% 
-  tab_header(title = "Most Biased Headline Examples") %>% 
-  tab_style(style = cell_text(color = "purple4"),
-            locations = cells_body())
+  tab_header(title = "Most Biased Headline Examples") #%>% 
+  #tab_style(style = cell_text(color = "purple4"),
+            #locations = cells_body())
 
 top_three_headlines_table
 ```
 \n
 ***
 
-## More Data Information\n
-### Data Calculations\n
+## More Information About the Data 
+\n
+### Data Calculations
+\n
 
+#### Polarity Calculations: The Pudding measured polarity by using a package in python which measured the sentiment (negative to positive) of each headline (a score from -1 to 1). The polarity is the absolute value of these scores. 
 
-##### POLARITY CALCULATIONS\n
-We measure polarity by performing sentiment analysis on each headline using the Vader python package, where each headline gets a sentiment score from -1 to 1 (from more negative to more positive). Because we are interested in polarity, we take the absolute value of each headline's score.\n
-
-##### BIAS CALCULATIONS\n
-We measure gender bias by tracking the combined occurrence of gendered language and social stereotypes usually associated with women. We do this in two steps:\n
-
-1) We check if a headline contains gendered language (i.e. “spokeswoman,” “chairwoman,” “she,” “her,” “bride,” “daughter,” “daughters,” “female,” “fiancee,” “girl,” “girlfriend” etc.).\n
-
-2) If it contains gendered language, we then count the number of words that are considered to be social stereotypes about women (i.e. “weak,” “modest,” “virgin,” “slut,” “whore,” “sexy,” “feminine,” “sensitive,” “emotional,” “gentle,” “soft,” “pretty,” “bitch,” “sexual” etc.).\n
-
-Finally, we normalize this count for all headlines within each outlet as a score between 0 and 1, and we aggregate (i.e. average) this score for each outlet.\n
+#### Bias Calculations: The Pudding measured gender bias in two steps. First, they checked if the headline used gendered language ('she', 'bride', 'daughter', ...). If it did, they counted the number of words that are stereotypes about women ('weak', 'sexy', 'emotional', ...). Then, they normalized this count so each site had a score between 0 and 1. 
 
 ### Data Source\n
 https://github.com/the-pudding/data/tree/master/women-in-headlines

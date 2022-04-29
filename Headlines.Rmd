@@ -1,5 +1,5 @@
 ---
-title: "Headlines"
+title: "Headlines Written About Women"
 author:
 - name: "Audrey Smyczek"
 - name: "Ellery Island"
@@ -54,7 +54,6 @@ pivot_country_word <- freq_country_words %>%
 ```
 
 
-## Women in Headlines Data
 
 #### The data taken involved the frequency of words used sorted by theme and frequency of words by country. The themes are crime and violence, empowerment, female stereotypes, people and places, race, ethnicity and identity, and no theme. The words were also ranked by theme based on frequency of use. The news sites were also assigned values for bias and polarity for individiual articles and overall. The sites were given a base polarity for all articles and a polarity for their articles that discuss women. Here are a few examples of real headlines published by news sites.
 \n
